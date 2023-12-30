@@ -33,6 +33,10 @@ class ControladorMensajesTest {
 
     @Test
     void dadoRemitenteYDestinatarioYTextoValidos_cuandoEnviarMensaje_entoncesOK() {
+
+        Boolean envioOK = controladorMensajes.enviarMensaje(12, 7, "Igualmente ... Feliz Navidad!!!");
+
+        assertTrue(envioOK);
     }
 
     @Test
