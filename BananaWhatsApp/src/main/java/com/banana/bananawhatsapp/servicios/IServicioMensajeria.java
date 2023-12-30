@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface IServicioMensajeria {
 
+
     public Mensaje enviarMensaje(Usuario remitente, Usuario destinatario, String texto) throws UsuarioException, MensajeException;
 
     public List<Mensaje> mostrarChatConUsuario(Usuario remitente, Usuario destinatario) throws UsuarioException, MensajeException;

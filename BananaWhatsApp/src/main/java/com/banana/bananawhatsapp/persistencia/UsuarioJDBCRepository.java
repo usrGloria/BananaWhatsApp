@@ -8,7 +8,6 @@ import java.util.Set;
 
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 
@@ -78,7 +77,7 @@ public class UsuarioJDBCRepository implements IUsuarioRepository {
             System.out.println("Transaccion exitosa!!");
             conn.commit();
 
-        } catch (UsuarioException e){
+        } catch (UsuarioException e) {
             e.printStackTrace();
             throw new UsuarioException("Usuario No Valido");
         } catch (Exception e) {
@@ -107,5 +106,51 @@ public class UsuarioJDBCRepository implements IUsuarioRepository {
     @Override
     public Set<Usuario> obtenerPosiblesDestinatarios(Integer id, Integer max) throws SQLException {
         return null;
+    }
+
+    @Override
+    public Usuario getById(Integer id) throws SQLException {
+        Usuario usuario = new Usuario();
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(connUrl);
+            conn.setAutoCommit(false);
+
+            // INSERTAR EN COMPRA
+            String sql = "Select * From Usuario Where ID=?";
+            PreparedStatement pstm = conn.prepareStatement(sql);
+            pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstm.setInt(1, id.intValue());
+
+            ResultSet rows = pstm.executeQuery();
+            if (rows.next()) {
+                usuario.setId(rows.getInt(1));
+                usuario.setActivo(rows.getBoolean(2));
+                usuario.setAlta(rows.getDate(3).toLocalDate());
+                usuario.setEmail(rows.getString(4));
+                usuario.setNombre(rows.getString(5));
+            } else {
+                throw new SQLException("No Existe el usuario");
+            }
+            pstm.close();
+
+            System.out.println("Nuevo Usuario:" + usuario);
+
+            System.out.println("Transaccion exitosa!!");
+
+        } catch (UsuarioException e) {
+            e.printStackTrace();
+            throw new UsuarioException("Usuario No Valido");
+        } catch (Exception e) {
+            System.out.println("Transaccion rollback!!");
+            conn.rollback();
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (conn != null) conn.close();
+        }
+
+        return usuario;
+
     }
 }

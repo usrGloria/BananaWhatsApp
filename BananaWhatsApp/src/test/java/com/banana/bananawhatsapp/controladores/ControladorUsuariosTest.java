@@ -7,14 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.banana.bananawhatsapp.config.SpringConfig;
 import com.banana.bananawhatsapp.modelos.Usuario;
-import com.banana.bananawhatsapp.persistencia.IUsuarioRepository;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
