@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import javax.swing.text.JTextComponent;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MensajeServicioImpl implements IServicioMensajeria {
@@ -23,7 +25,7 @@ public class MensajeServicioImpl implements IServicioMensajeria {
 
     @Override
     public Mensaje enviarMensaje(Usuario remitente, Usuario destinatario, String texto) throws UsuarioException, MensajeException {
-        Mensaje newMensaje = new Mensaje(null, remitente,destinatario, texto, LocalDate.now());
+        Mensaje newMensaje = new Mensaje(null, remitente, destinatario, texto, LocalDate.now());
         try {
 //            usrRepo.getById(remitente.getId());
 //            usrRepo.getById(destinatario.getId());
@@ -38,11 +40,48 @@ public class MensajeServicioImpl implements IServicioMensajeria {
     }
 
 
-
     @Override
     public List<Mensaje> mostrarChatConUsuario(Usuario remitente, Usuario destinatario) throws UsuarioException, MensajeException {
+        HashMap<Integer, Mensaje> hMensajes = new HashMap<Integer, Mensaje>();
+        //List<Mensaje> chat = new ArrayList<>();
 
-        return null;
+        try {
+            List<Mensaje> chatRemitente = msgRepo.obtener(remitente);
+            List<Mensaje> chatDestinatario = msgRepo.obtener(destinatario);
+
+//            for (Mensaje msg : chatRemitente) {
+//                if ((msg.getRemitente().getId().intValue() == remitente.getId().intValue())
+//                        && (msg.getDestinatario().getId().intValue() == destinatario.getId().intValue())
+//                ){
+//                    chat.add(msg);
+//                }
+//                if((msg.getRemitente().getId().intValue() == destinatario.getId().intValue())
+//                        && (msg.getDestinatario().getId().intValue() == remitente.getId().intValue())
+//                ){
+//                    chat.add(msg);
+//                }
+//            }
+
+
+            for (Mensaje msg : chatRemitente) {
+                if (msg.getDestinatario().getId().intValue() == destinatario.getId().intValue()) {
+                    hMensajes.put(msg.getId(), msg);
+                }
+            }
+
+            for (Mensaje msg : chatDestinatario) {
+                if (msg.getDestinatario().getId().intValue() == remitente.getId().intValue()) {
+                    hMensajes.put(msg.getId(), msg);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+        return new ArrayList<Mensaje>(hMensajes.values());
     }
 
     ;

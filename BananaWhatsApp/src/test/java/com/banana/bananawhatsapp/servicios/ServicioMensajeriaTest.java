@@ -12,9 +12,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {SpringConfig.class})
@@ -44,7 +46,13 @@ class ServicioMensajeriaTest {
     }
 
     @Test
-    void dadoRemitenteYDestinatarioValido_cuandoMostrarChatConUsuario_entoncesListaMensajes() {
+    void dadoRemitenteYDestinatarioValido_cuandoMostrarChatConUsuario_entoncesListaMensajes() throws SQLException {
+        Usuario remitente = usuarioRepo.getById(7);
+        Usuario destinatario = usuarioRepo.getById(12);
+        List <Mensaje> chat = servicio.mostrarChatConUsuario(remitente, destinatario);
+
+        assertNotNull(chat);
+
     }
 
     @Test
@@ -53,6 +61,7 @@ class ServicioMensajeriaTest {
 
     @Test
     void dadoRemitenteYDestinatarioValido_cuandoBorrarChatConUsuario_entoncesOK() {
+
     }
 
     @Test

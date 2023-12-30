@@ -1,15 +1,18 @@
 package com.banana.bananawhatsapp.persistencia;
 
+import com.banana.bananawhatsapp.exceptions.MensajeException;
 import com.banana.bananawhatsapp.modelos.Mensaje;
 import com.banana.bananawhatsapp.modelos.Usuario;
 import com.banana.bananawhatsapp.exceptions.UsuarioException;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
 
@@ -69,10 +72,53 @@ public class MensajeJDBCRepository implements IMensajeRepository {
         return mensaje;
     }
 
+    @Autowired
+    IUsuarioRepository usrRepo;
     @Override
     public List<Mensaje> obtener(Usuario usuario) throws SQLException {
+        Connection conn = null;
 
-        return null;
+        List<Mensaje> mensajes = new ArrayList<>();
+
+        try {
+            conn = DriverManager.getConnection(connUrl);
+            conn.setAutoCommit(false);
+
+            String sql = "Select * From Mensaje Where from_user=? order by id";
+            PreparedStatement pstm = conn.prepareStatement(sql);
+            pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstm.setInt(1, usuario.getId().intValue());
+            // id cuerpo fecha from to
+            ResultSet rows = pstm.executeQuery();
+            while (rows.next()) {
+                // Id Remitente Destinatario Cuerpo Fecha
+                mensajes.add(
+                        new Mensaje(rows.getInt(1),
+                                usrRepo.getById(rows.getInt(4)),
+                                usrRepo.getById(rows.getInt(5)),
+                                rows.getString(2),
+                                rows.getDate(3).toLocalDate()
+                        ));
+            }
+
+//          throw new SQLException("No Existen mensajes para el usuario");
+            pstm.close();
+
+            System.out.println("Transaccion exitosa!!");
+
+        } catch (UsuarioException e) {
+            e.printStackTrace();
+            throw new MensajeException("Error al recuperar mensaje");
+        } catch (Exception e) {
+            System.out.println("Transaccion rollback!!");
+            conn.rollback();
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (conn != null) conn.close();
+        }
+
+        return mensajes;
     }
 
     @Override
